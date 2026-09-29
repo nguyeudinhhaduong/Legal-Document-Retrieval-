@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+.vscode/
+.idea/
+
+# Dữ liệu cuộc thi, model và output (không đưa lên GitHub)
+data/
+data_package/
+runs/
+outputs/
+*.faiss
+*.safetensors
+*.bin
+*.zip
+*.jsonl
+!examples/*.jsonl
+.legalir_offline_wheels/

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LegalIR Final Results</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --line: #e2e5ea; --text: #1c2430; --muted: #6b7684;
+    --accent: #2f6fed; --accent-soft: #e8efff; --dot: #9aa4b1; --good-soft: #e3f6ea; --good: #1a7f47;
+    --mono: ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f141b; --panel: #171e27; --line: #2a333f; --text: #e6ebf1; --muted: #93a0b0;
+      --accent: #6d9cff; --accent-soft: #1d2b45; --dot: #5d6978; --good-soft: #143223; --good: #4cc47f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f141b; --panel: #171e27; --line: #2a333f; --text: #e6ebf1; --muted: #93a0b0;
+    --accent: #6d9cff; --accent-soft: #1d2b45; --dot: #5d6978; --good-soft: #143223; --good: #4cc47f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 20px 16px 40px; }
+  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+  h1 { font-size: 22px; margin: 0; }
+  header p { margin: 4px 0 0; color: var(--muted); }
+  button, input { font: inherit; color: var(--text); }
+  button { padding: 6px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .kpi .label { color: var(--muted); font-size: 12px; }
+  .kpi .value { font-size: 30px; font-weight: 650; font-variant-numeric: tabular-nums; margin: 2px 0; }
+  .kpi .sub { color: var(--muted); font-size: 12px; }
+  .kpi.hero { border-color: var(--accent); background: var(--accent-soft); }
+  .grid2 { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-bottom: 16px; }
+  @media (min-width: 960px) { .grid2 { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); } }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+  section h2 { font-size: 15px; margin: 0 0 10px; }
+  .steps { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; counter-reset: s; }
+  .steps li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; }
+  .steps li::before { counter-increment: s; content: counter(s); width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 600; font-size: 12px; }
+  .steps b { display: block; }
+  .steps span { color: var(--muted); font-size: 13px; }
+  code, .mono { font-family: var(--mono); font-size: 12.5px; }
+  .formula { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); font-family: var(--mono); font-size: 13px; overflow-x: auto; white-space: nowrap; }
+  .chart { width: 100%; height: auto; display: block; }
+  .chart text { fill: var(--muted); font-size: 12px; }
+  .chart .lbl { fill: var(--text); }
+  .chart .val { fill: var(--text); font-family: var(--mono); font-size: 12px; }
+  .chart .grid { stroke: var(--line); stroke-width: 1; }
+  .chart .stem { stroke: var(--line); stroke-width: 2; }
+  .chart .hit { fill: transparent; }
+  .chart g.row:hover .stem { stroke: var(--muted); }
+  .note { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+  .explorer { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  @media (min-width: 960px) { .explorer { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); } }
+  .search { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); margin-bottom: 8px; }
+  .qlist { max-height: 560px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+  .qitem { padding: 8px 10px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .qitem:last-child { border-bottom: 0; }
+  .qitem:hover, .qitem.active { background: var(--accent-soft); }
+  .qitem .id { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+  .count { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; white-space: nowrap; }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.top5 td { background: var(--good-soft); }
+  td.title { min-width: 240px; }
+  .tag { display: inline-block; padding: 0 6px; border-radius: 10px; font-size: 11px; background: var(--good-soft); color: var(--good); font-weight: 600; }
+  .qhead { margin-bottom: 10px; }
+  .qhead h3 { margin: 0 0 4px; font-size: 15px; }
+  .muted { color: var(--muted); }
+  footer { color: var(--muted); font-size: 12px; margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>LegalIR · Kết quả cuối cùng</h1>
+      <p>Truy hồi văn bản pháp luật tiếng Việt · DSC 2026 · metric Recall@5</p>
+    </div>
+    <button id="theme" type="button">Đổi giao diện sáng/tối</button>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi hero"><div class="label">Private leaderboard</div><div class="value">0.9495</div><div class="sub">bài nộp cuối cùng (*)</div></div>
+    <div class="kpi"><div class="label">Public leaderboard</div><div class="value">0.9498</div><div class="sub">điểm public cao nhất (*)</div></div>
+    <div class="kpi"><div class="label">Thuật toán rerank (public)</div><div class="value">0.9488</div><div class="sub">tái lập 100% bằng code trong repo</div></div>
+    <div class="kpi"><div class="label">Validation Recall@5</div><div class="value">0.9513</div><div class="sub">1.000 câu giữ lại từ train</div></div>
+  </div>
+
+  <div class="grid2">
+    <section>
+      <h2>Pipeline</h2>
+      <ol class="steps">
+        <li><div><b>Chunk văn bản theo Điều/Khoản</b><span>8.532 văn bản → 380.582 chunk, giữ đường dẫn Chương/Mục</span></div></li>
+        <li><div><b>Dense retrieval: BGE-M3 + LoRA A, B, C</b><span>3 FAISS index, hợp nhất thành pool 60 văn bản/câu hỏi</span></div></li>
+        <li><div><b>Cross-encoder: BGE-reranker-v2-m3 + LoRA R1, R2</b><span>chấm tối đa 4 chunk evidence, điểm văn bản = max</span></div></li>
+        <li><div><b>Weighted RRF</b><span>trọng số B 0.4 · R1 0.4 · R2 0.2 (A, C = 0), K = 10</span></div></li>
+        <li><div><b>Top-5 → submission</b><span>hòa điểm phá bằng CID tăng dần, kết quả tất định</span></div></li>
+      </ol>
+      <div class="formula">fused(d) = Σ<sub>s</sub> w<sub>s</sub> / (10 + rank<sub>s</sub>(d)),&nbsp; s ∈ {B, R1, R2}</div>
+    </section>
+    <section>
+      <h2>Recall@5 trên validation: từng tín hiệu và fusion</h2>
+      <svg class="chart" id="ablation" viewBox="0 0 520 250" role="img" aria-label="Recall@5 validation theo tín hiệu"></svg>
+      <p class="note">Trục ngang bắt đầu từ 0.88 để thấy chênh lệch. Fusion vượt tín hiệu đơn tốt nhất (R1) +0.0044.</p>
+    </section>
+  </div>
+
+  <section>
+    <h2>Kết quả rerank trên private test (<span id="nq"></span> câu hỏi)</h2>
+    <div class="explorer">
+      <div>
+        <input class="search" id="search" type="search" placeholder="Tìm theo câu hỏi, QID hoặc CID…">
+        <div class="count" id="count"></div>
+        <div class="qlist" id="qlist"></div>
+      </div>
+      <div id="detail"></div>
+    </div>
+  </section>
+
+  <footer>
+    (*) Bài nộp 0.9495/0.9498 là output của thuật toán cộng thêm bước rà soát thủ công một số ít câu;
+    code trong repo tái lập chính xác bài nộp thuật toán 0.9488 (<code>python scripts/rerank.py</code>).
+    Ô xanh là top-5 được nộp; cột A…R2 là hạng của văn bản theo từng tín hiệu trong pool 60 văn bản ("–" = retriever không truy hồi được).
+  </footer>
+</div>
+
+<script src="results.js"></script>
+<script>
+(() => {
+  const root = document.documentElement;
+  const saved = (() => { try { return localStorage.getItem("legalir-theme"); } catch { return null; } })();
+  if (saved) root.dataset.theme = saved;
+  document.getElementById("theme").onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("legalir-theme", root.dataset.theme); } catch {}
+  };
+
+  // --- ablation dot plot ---
+  const rows = [["Dense A", .9253], ["Dense B", .9315], ["Dense C", .8971], ["Reranker R1", .9469], ["Reranker R2", .9467], ["Fusion (nộp)", .9513]];
+  const svg = document.getElementById("ablation"), NS = "http://www.w3.org/2000/svg";
+  const x0 = 110, x1 = 470, lo = .88, hi = .96, X = v => x0 + (v - lo) / (hi - lo) * (x1 - x0);
+  const el = (tag, attrs, parent = svg) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); parent.appendChild(n); return n; };
+  for (let t = lo; t <= hi + 1e-9; t += .02) {
+    el("line", { x1: X(t), x2: X(t), y1: 10, y2: 222, class: "grid" });
+    el("text", { x: X(t), y: 240, "text-anchor": "middle" }).textContent = t.toFixed(2);
+  }
+  rows.forEach(([name, v], i) => {
+    const y = 26 + i * 36, g = el("g", { class: "row" }), fusion = i === rows.length - 1;
+    el("title", {}, g).textContent = `${name}: Recall@5 = ${v.toFixed(4)}`;
+    el("rect", { x: 0, y: y - 16, width: 520, height: 32, class: "hit" }, g);
+    el("text", { x: 0, y: y + 4, class: "lbl", "font-weight": fusion ? 600 : 400 }, g).textContent = name;
+    el("line", { x1: x0, x2: X(v), y1: y, y2: y, class: "stem" }, g);
+    el("circle", { cx: X(v), cy: y, r: fusion ? 7 : 5, fill: fusion ? "var(--accent)" : "var(--dot)", stroke: "var(--panel)", "stroke-width": 2 }, g);
+    el("text", { x: X(v) + 12, y: y + 4, class: "val", "font-weight": fusion ? 600 : 400 }, g).textContent = v.toFixed(4);
+  });
+
+  // --- query explorer ---
+  const data = window.LEGALIR_RESULTS;
+  const qlist = document.getElementById("qlist"), detail = document.getElementById("detail");
+  if (!data) { detail.innerHTML = '<p class="muted">Chưa có results.js — chạy scripts/build_dashboard_data.py.</p>'; return; }
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  document.getElementById("nq").textContent = data.meta.queries.toLocaleString("vi-VN");
+  let active = null, shown = [];
+
+  function show(q) {
+    active = q[0];
+    for (const n of qlist.children) n.classList.toggle("active", n.dataset.qid === active);
+    const body = q[2].map(([cid, score, ...ranks], i) => `
+      <tr class="${i < 5 ? "top5" : ""}">
+        <td class="num">${i + 1}</td>
+        <td class="num">${esc(cid)}</td>
+        <td class="title">${esc(data.titles[cid] || "")}</td>
+        <td class="num">${score.toFixed(4)}</td>
+        ${ranks.map(r => `<td class="num">${r ?? "–"}</td>`).join("")}
+      </tr>`).join("");
+    detail.innerHTML = `
+      <div class="qhead"><h3>${esc(q[1])}</h3><span class="mono muted">QID ${esc(q[0])}</span> <span class="tag">top-5 nộp</span></div>
+      <div class="tablewrap"><table>
+        <thead><tr><th class="num">#</th><th class="num">CID</th><th>Văn bản</th><th class="num">RRF</th>
+        <th class="num">A</th><th class="num">B</th><th class="num">C</th><th class="num">R1</th><th class="num">R2</th></tr></thead>
+        <tbody>${body}</tbody></table></div>`;
+  }
+
+  function render(filter) {
+    const f = filter.trim().toLowerCase();
+    shown = !f ? data.queries : data.queries.filter(q => q[0] === f || q[1].toLowerCase().includes(f) || q[2].some(c => c[0] === f));
+    const page = shown.slice(0, 300);
+    qlist.innerHTML = page.map(q => `<div class="qitem" data-qid="${esc(q[0])}"><span class="id">${esc(q[0])}</span> ${esc(q[1])}</div>`).join("")
+      || '<div class="qitem muted">Không có câu hỏi phù hợp.</div>';
+    document.getElementById("count").textContent = `${shown.length.toLocaleString("vi-VN")} câu hỏi` + (shown.length > page.length ? ` · hiển thị ${page.length} đầu tiên` : "");
+    if (shown.length && !shown.some(q => q[0] === active)) show(shown[0]); else if (active) show(shown.find(q => q[0] === active));
+  }
+  qlist.onclick = e => { const item = e.target.closest(".qitem[data-qid]"); if (item) show(data.queries.find(q => q[0] === item.dataset.qid)); };
+  document.getElementById("search").oninput = e => render(e.target.value);
+  render("");
+})();
+</script>
+</body>
+</html>

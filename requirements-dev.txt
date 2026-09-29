@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest>=8
+# chỉ cần khi chụp lại ảnh dashboard: playwright install chromium
+playwright>=1.45

@@ -1,0 +1,13 @@
+[project]
+name = "legalir"
+version = "1.0.0"
+description = "Vietnamese legal document retrieval: BGE-M3 LoRA dense retrieval + BGE-reranker + weighted RRF (DSC 2026)"
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+include = ["legalir*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
