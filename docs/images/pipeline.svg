@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 600" width="1240" height="600" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5b6675"/>
+    </marker>
+    <marker id="arrd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9aa4b1"/>
+    </marker>
+    <style>
+      .t { font-size: 15px; font-weight: 650; fill: #1c2430; }
+      .s { font-size: 12.5px; fill: #5b6675; }
+      .m { font-size: 12px; fill: #1c2430; font-family: Consolas, ui-monospace, monospace; }
+      .h { font-size: 12px; font-weight: 700; fill: #6b7684; letter-spacing: .08em; }
+      .edge { stroke: #5b6675; stroke-width: 2; fill: none; }
+      .dash { stroke: #9aa4b1; stroke-width: 1.6; fill: none; stroke-dasharray: 5 4; }
+    </style>
+  </defs>
+
+  <rect width="1240" height="600" fill="#ffffff"/>
+  <text x="32" y="40" font-size="22" font-weight="700" fill="#1c2430">LegalIR pipeline — truy hồi văn bản pháp luật tiếng Việt</text>
+  <text x="32" y="64" class="s">Recall@5 · validation 0.9513 · public 0.9488 (thuật toán) · private 0.9495</text>
+
+  <!-- stage headers -->
+  <text x="32"  y="104" class="h">1 · DỮ LIỆU</text>
+  <text x="262" y="104" class="h">2 · DENSE RETRIEVAL</text>
+  <text x="560" y="104" class="h">3 · CANDIDATE POOL</text>
+  <text x="768" y="104" class="h">4 · CROSS-ENCODER</text>
+  <text x="1030" y="104" class="h">5 · FUSION</text>
+
+  <!-- 1. data -->
+  <rect x="32" y="122" width="200" height="86" rx="10" fill="#f3f5f8" stroke="#c9d0da"/>
+  <text x="48" y="150" class="t">Câu hỏi</text>
+  <text x="48" y="172" class="s">tiếng Việt, ~92% có 1 gold</text>
+  <text x="48" y="192" class="s">2.080 câu private test</text>
+
+  <rect x="32" y="244" width="200" height="120" rx="10" fill="#f3f5f8" stroke="#c9d0da"/>
+  <text x="48" y="272" class="t">Kho văn bản luật</text>
+  <text x="48" y="294" class="s">8.532 văn bản</text>
+  <text x="48" y="314" class="s">làm sạch Unicode/OCR</text>
+  <text x="48" y="334" class="s">chunk theo Điều / Khoản</text>
+  <text x="48" y="354" class="m">→ 380.582 chunk</text>
+
+  <!-- 2. dense -->
+  <g>
+    <rect x="262" y="122" width="266" height="242" rx="10" fill="#e8efff" stroke="#8fb0f5"/>
+    <text x="278" y="150" class="t">BGE-M3 + LoRA</text>
+    <text x="278" y="170" class="s">3 FAISS index (1024 chiều, CLS)</text>
+    <rect x="278" y="186" width="234" height="44" rx="8" fill="#ffffff" stroke="#8fb0f5"/>
+    <text x="292" y="206" class="t" font-size="14">A</text>
+    <text x="312" y="206" class="s">hard negative ban đầu</text>
+    <text x="312" y="222" class="m">R@5 0.9253</text>
+    <rect x="278" y="238" width="234" height="44" rx="8" fill="#ffffff" stroke="#2f6fed" stroke-width="2"/>
+    <text x="292" y="258" class="t" font-size="14">B</text>
+    <text x="312" y="258" class="s">tiếp từ A, teacher + lexical neg.</text>
+    <text x="312" y="274" class="m">R@5 0.9315 · w = 0.4</text>
+    <rect x="278" y="290" width="234" height="44" rx="8" fill="#ffffff" stroke="#8fb0f5"/>
+    <text x="292" y="310" class="t" font-size="14">C</text>
+    <text x="312" y="310" class="s">tiếp từ B, học lỗi của B</text>
+    <text x="312" y="326" class="m">R@5 0.8971</text>
+    <text x="278" y="354" class="s">A, C mở rộng pool (w = 0)</text>
+  </g>
+
+  <!-- 3. pool -->
+  <rect x="560" y="178" width="178" height="130" rx="10" fill="#f3f5f8" stroke="#c9d0da"/>
+  <text x="576" y="206" class="t">Pool 60 văn bản</text>
+  <text x="576" y="228" class="s">hợp nhất A/B/C</text>
+  <text x="576" y="248" class="s">mỗi văn bản ≤ 4 chunk</text>
+  <text x="576" y="268" class="s">evidence (round-robin)</text>
+  <text x="576" y="292" class="m">pool recall 0.986</text>
+
+  <!-- 4. rerankers -->
+  <rect x="768" y="122" width="232" height="242" rx="10" fill="#fff3e0" stroke="#f0b35c"/>
+  <text x="784" y="150" class="t">BGE-reranker-v2-m3</text>
+  <text x="784" y="170" class="s">+ LoRA, chấm (câu hỏi, chunk)</text>
+  <rect x="784" y="186" width="200" height="50" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+  <text x="798" y="207" class="t" font-size="14">R1</text>
+  <text x="826" y="207" class="s">listwise, hard neg.</text>
+  <text x="826" y="225" class="m">R@5 0.9469 · w = 0.4</text>
+  <rect x="784" y="246" width="200" height="50" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+  <text x="798" y="267" class="t" font-size="14">R2</text>
+  <text x="826" y="267" class="s">tiếp từ R1, multi-gold</text>
+  <text x="826" y="285" class="m">R@5 0.9467 · w = 0.2</text>
+  <text x="784" y="324" class="s">điểm văn bản =</text>
+  <text x="784" y="344" class="m">max(điểm các chunk)</text>
+
+  <!-- 5. fusion -->
+  <rect x="1030" y="122" width="178" height="150" rx="10" fill="#e3f6ea" stroke="#1f9d55" stroke-width="2"/>
+  <text x="1046" y="150" class="t">Weighted RRF</text>
+  <text x="1046" y="176" class="m">Σ w_s / (10 + rank_s)</text>
+  <text x="1046" y="200" class="s">B .4 · R1 .4 · R2 .2</text>
+  <text x="1046" y="220" class="s">hòa → CID nhỏ trước</text>
+  <text x="1046" y="248" class="m">R@5 0.9513</text>
+
+  <rect x="1030" y="304" width="178" height="60" rx="10" fill="#1f9d55"/>
+  <text x="1046" y="330" class="t" style="fill:#ffffff">Top-5 văn bản</text>
+  <text x="1046" y="350" class="m" style="fill:#e3f6ea">submission.json</text>
+
+  <!-- edges -->
+  <path class="edge" d="M232,165 H247 V200 H262" marker-end="url(#arr)"/>
+  <path class="edge" d="M232,304 H247 V270 H262" marker-end="url(#arr)"/>
+  <path class="edge" d="M528,243 H560" marker-end="url(#arr)"/>
+  <path class="edge" d="M738,243 H768" marker-end="url(#arr)"/>
+  <path class="edge" d="M1000,197 H1030" marker-end="url(#arr)"/>
+  <path class="edge" d="M1119,272 V304" marker-end="url(#arr)"/>
+  <!-- dense B ranks go straight to fusion -->
+  <path class="dash" d="M395,364 V392 H1119 V364" marker-end="url(#arrd)"/>
+  <text x="640" y="386" class="s">hạng của B cũng bỏ phiếu trực tiếp vào fusion</text>
+
+  <!-- training lane -->
+  <line x1="32" y1="428" x2="1208" y2="428" stroke="#e2e5ea"/>
+  <text x="32" y="456" class="h">HUẤN LUYỆN (GPU, BF16) · 7.000 câu train, giữ 1.000 câu validation = 500 development + 500 locked</text>
+
+  <g font-size="13">
+    <rect x="32"  y="474" width="150" height="40" rx="8" fill="#e8efff" stroke="#8fb0f5"/><text x="107" y="499" text-anchor="middle" class="t" font-size="13">LoRA A</text>
+    <rect x="222" y="474" width="150" height="40" rx="8" fill="#e8efff" stroke="#8fb0f5"/><text x="297" y="499" text-anchor="middle" class="t" font-size="13">LoRA B</text>
+    <rect x="412" y="474" width="150" height="40" rx="8" fill="#e8efff" stroke="#8fb0f5"/><text x="487" y="499" text-anchor="middle" class="t" font-size="13">LoRA C</text>
+    <rect x="642" y="474" width="150" height="40" rx="8" fill="#fff3e0" stroke="#f0b35c"/><text x="717" y="499" text-anchor="middle" class="t" font-size="13">Reranker R1</text>
+    <rect x="832" y="474" width="150" height="40" rx="8" fill="#fff3e0" stroke="#f0b35c"/><text x="907" y="499" text-anchor="middle" class="t" font-size="13">Reranker R2</text>
+    <rect x="1030" y="474" width="178" height="40" rx="8" fill="#e3f6ea" stroke="#1f9d55"/><text x="1119" y="499" text-anchor="middle" class="t" font-size="13">Tìm trọng số</text>
+  </g>
+  <path class="edge" d="M182,494 H222" marker-end="url(#arr)"/>
+  <path class="edge" d="M372,494 H412" marker-end="url(#arr)"/>
+  <path class="edge" d="M562,494 H642" marker-end="url(#arr)"/>
+  <path class="edge" d="M792,494 H832" marker-end="url(#arr)"/>
+  <path class="edge" d="M982,494 H1030" marker-end="url(#arr)"/>
+  <text x="32"  y="538" class="s">InfoNCE, t = 0.02</text>
+  <text x="222" y="538" class="s">+ distill từ reranker</text>
+  <text x="412" y="538" class="s">tập trung lỗi của B</text>
+  <text x="572" y="538" class="s">neg. từ pool A/B/C</text>
+  <text x="832" y="538" class="s">refresh neg. mỗi 250 step</text>
+  <text x="1030" y="538" class="s">lưới trọng số trên development</text>
+  <text x="32"  y="574" class="s">Checkpoint được chọn theo Recall@5 trên pool cố định; tập locked chỉ dùng để báo cáo, không dùng để chọn.</text>
+</svg>

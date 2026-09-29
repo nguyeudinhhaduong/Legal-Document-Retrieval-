@@ -15,14 +15,17 @@ Với mỗi câu hỏi, hệ thống trả về 5 văn bản luật liên quan n
 
 ![Dashboard kết quả cuối](docs/images/dashboard.png)
 
+<details><summary>Giao diện tối</summary>
+
+![Dashboard dark](docs/images/dashboard_dark.png)
+
+</details>
+
 ## Phương pháp
 
-```
-câu hỏi ──► BGE-M3 + LoRA A ─┐
-        ──► BGE-M3 + LoRA B ─┼─► pool 60 văn bản ──► BGE-reranker-v2-m3 + LoRA R1 ─┐
-        ──► BGE-M3 + LoRA C ─┘   (FAISS, 3 index)  ──► BGE-reranker-v2-m3 + LoRA R2 ─┼─► Weighted RRF ──► top-5
-                                                                                     (B .4 · R1 .4 · R2 .2)
-```
+![Pipeline](docs/images/pipeline.png)
+
+Bản vector: [docs/images/pipeline.svg](docs/images/pipeline.svg)
 
 1. **Chunk theo cấu trúc pháp lý** – làm sạch Unicode/OCR, cắt theo *Điều* (và *Khoản* khi Điều quá dài),
    mỗi chunk giữ đường dẫn Phần/Chương/Mục: 8.532 văn bản → 380.582 chunk.
