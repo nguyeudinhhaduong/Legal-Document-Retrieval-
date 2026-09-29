@@ -5,13 +5,14 @@ Với mỗi câu hỏi, hệ thống trả về 5 văn bản luật liên quan n
 
 | | Điểm |
 |---|---:|
-| **Private leaderboard** (bài nộp cuối) | **0.9495** |
-| Public leaderboard (cao nhất) | 0.9498 |
-| Thuật toán rerank trong repo (public, tái lập 100%) | 0.9488 |
-| Validation Recall@5 (1.000 câu giữ lại từ train) | 0.9513 |
+| | Recall@5 | Hạng |
+|---|---:|---:|
+| **Private leaderboard** | **0.9495** | 11 |
+| Public leaderboard | 0.9498 | 10 |
+| Bài nộp `submission_fixed` (public) — code trong repo tái lập 100% | 0.9488 | |
+| Validation (1.000 câu giữ lại từ train) | 0.9513 | |
 
-> Bài nộp 0.9495 / 0.9498 là output của thuật toán cộng thêm bước rà soát thủ công một số ít câu.
-> Code trong repo tái lập chính xác từng byte bài nộp thuật toán 0.9488.
+Đội: **HCMUS-Tryial**. Chi tiết quá trình nghiên cứu: [docs/RESEARCH.md](docs/RESEARCH.md).
 
 ![Dashboard kết quả cuối](docs/images/dashboard.png)
 
@@ -174,15 +175,15 @@ python -m pytest            # 32 test, CPU, không cần model
 python -m legalir --self-test
 ```
 
-## Leaderboard
+## Bảng xếp hạng
 
-Public:
+Private phase — hạng 11, Recall@5 0.9495:
 
-![Public leaderboard](docs/images/leaderboard_public.png)
+![Private ranking](docs/images/ranking_private.png)
 
-Private:
+Public phase — hạng 10, Recall@5 0.9498:
 
-![Private leaderboard](docs/images/leaderboard_private.png)
+![Public ranking](docs/images/ranking_public.png)
 
 ## Dữ liệu
 

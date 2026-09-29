@@ -18,7 +18,7 @@
 
   <rect width="1240" height="600" fill="#ffffff"/>
   <text x="32" y="40" font-size="22" font-weight="700" fill="#1c2430">LegalIR pipeline — truy hồi văn bản pháp luật tiếng Việt</text>
-  <text x="32" y="64" class="s">Recall@5 · validation 0.9513 · public 0.9488 (thuật toán) · private 0.9495</text>
+  <text x="32" y="64" class="s">Recall@5 · validation 0.9513 · public 0.9498 (hạng 10) · private 0.9495 (hạng 11)</text>
 
   <!-- stage headers -->
   <text x="32"  y="104" class="h">1 · DỮ LIỆU</text>
